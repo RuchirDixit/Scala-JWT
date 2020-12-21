@@ -1,0 +1,12 @@
+[debug] downloaded https://repo1.maven.org/maven2/com/typesafe/akka/akka-stream_2.13/2.5.23/akka-stream_2.13-2.5.23.pom
+[debug] downloaded https://repo1.maven.org/maven2/com/typesafe/akka/akka-http_2.13/10.1.8/akka-http_2.13-10.1.8.pom
+[debug] downloaded https://repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.13/2.5.23/akka-actor_2.13-2.5.23.pom
+[debug] downloaded https://repo1.maven.org/maven2/com/jason-goodwin/authentikat-jwt_2.13/0.4.5/authentikat-jwt_2.13-0.4.5.pom
+[debug] downloaded https://repo1.maven.org/maven2/de/heikoseeberger/akka-http-play-json_2.13/1.20.0/akka-http-play-json_2.13-1.20.0.pom
+[debug] downloaded https://repo1.maven.org/maven2/com/typesafe/play/play-json_2.13/2.6.7/play-json_2.13-2.6.7.pom
+[debug] downloaded https://repo1.maven.org/maven2/com/jason-goodwin/authentikat-jwt_2.13/0.4.5/authentikat-jwt_2.13-0.4.5.pom.sha1
+[debug] downloaded https://repo1.maven.org/maven2/de/heikoseeberger/akka-http-play-json_2.13/1.20.0/akka-http-play-json_2.13-1.20.0.pom.sha1
+[debug] downloaded https://repo1.maven.org/maven2/com/typesafe/play/play-json_2.13/2.6.7/play-json_2.13-2.6.7.pom.sha1
+[debug] downloaded https://repo1.maven.org/maven2/com/typesafe/akka/akka-http-core_2.13/10.1.8/akka-http-core_2.13-10.1.8.pom
+[debug] downloaded https://repo1.maven.org/maven2/com/typesafe/akka/akka-protobuf_2.13/2.5.23/akka-protobuf_2.13-2.5.23.pom
+[debug] downloaded https://repo1.maven.org/maven2/com/typesafe/akka/akka-parsing_2.13/10.1.8/akka-parsing_2.13-10.1.8.pom
