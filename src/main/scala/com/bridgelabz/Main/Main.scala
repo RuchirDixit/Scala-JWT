@@ -9,7 +9,8 @@ import scala.io.StdIn
 object Main extends App {
 
   val conf = ConfigFactory.load()
-
+  val host = sys.env("Host")
+    val port_number = sys.env("Port_number").toInt
   implicit val actorSystem: ActorSystem = ActorSystem("system")
   implicit val materializer: ActorMaterializer =
     ActorMaterializer()(actorSystem)
@@ -18,8 +19,8 @@ object Main extends App {
   val userManagementRoutes = new UserManagementRoutes(userManagementService)
   val routes = userManagementRoutes.routes
 
-  val bindingFuture = Http().bindAndHandle(routes, "localhost", 8081)
-  println(s"Server online at http://localhost:8081/\nPress RETURN to stop...")
+  val bindingFuture = Http().bindAndHandle(routes, host, port_number)
+  println(s"Server online at http://localhost:8081")
   StdIn.readLine()
   bindingFuture
     .flatMap(_.unbind())
