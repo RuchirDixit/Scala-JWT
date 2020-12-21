@@ -7,6 +7,7 @@ import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 class UserManagementRoutes(service: UserManagementService) extends PlayJsonSupport {
   val routes: Route =
     pathPrefix("user") {
+      // for login using post request, returns success on successful login or else returns unauthorized
       path("login") {
         (post & entity(as[Request])) { loginRequest =>
           if (service.userLogin(loginRequest) == "Login Successful") {
@@ -17,6 +18,7 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
           }
         }
       } ~
+        // to register user using post request, returns success on successful registration or else returns Cannot registered
         path("register") {
           println("Inside register")
           (post & entity(as[Request])) { createUserRequest =>
