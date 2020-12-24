@@ -20,12 +20,10 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
       } ~
         // to register user using post request, returns success on successful registration or else returns Cannot registered
         path("register") {
-          println("Inside register")
           (post & entity(as[Request])) { createUserRequest =>
-            if (service.createUser(createUserRequest) == "User Created") {
-              val token: String = TokenAuthorization.generateToken(createUserRequest.email)
-              println(createUserRequest.email)
-              complete((StatusCodes.OK, token))
+            if (service.createUser(createUserRequest) == "User created") {
+              //val token: String = TokenAuthorization.generateToken(createUserRequest.email)
+              complete((StatusCodes.OK, "User Registered!"))
             } else {
               complete(StatusCodes.BadRequest -> "Cannot Register")
             }
