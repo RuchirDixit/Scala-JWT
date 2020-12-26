@@ -1,6 +1,10 @@
 package com.bridgelabz.Main
 
-class UserManagementService {
+import com.typesafe.scalalogging.LazyLogging
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+class UserManagementService extends LazyLogging{
 
   /**
    *
@@ -8,7 +12,18 @@ class UserManagementService {
    * @return : If successful login return "Login Successful"
    */
   def userLogin(loginRequest: Request): String = {
-    "Login Successful"
+    val users = Await.result(Database_service.getUsersUsingFilter(loginRequest.email),60.seconds)
+    users.foreach(document => document.foreach(bsonStringObject =>
+    if(bsonStringObject._2.asString().getValue.equals(loginRequest.email)){
+      logger.info("Inside if value (email):" + bsonStringObject._2.asString().getValue)
+      users.foreach(document => document.foreach(bsonStringObject =>
+        if(bsonStringObject._2.asString().getValue.equals(loginRequest.password)){
+          logger.info("Inside if value (password):" + bsonStringObject._2.asString().getValue)
+          return "Login Successful"
+        }))
+    }
+    ))
+    "User not found"
   }
 
   /**
