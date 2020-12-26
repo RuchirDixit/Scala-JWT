@@ -7,7 +7,6 @@ import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
 
 object Main extends App {
-
   val conf = ConfigFactory.load()
   val host = sys.env("Host")
     val port_number = sys.env("Port_number").toInt
@@ -25,5 +24,4 @@ object Main extends App {
   bindingFuture
     .flatMap(_.unbind())
     .onComplete(_ => actorSystem.terminate())
-
 }
