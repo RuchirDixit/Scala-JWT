@@ -2,7 +2,8 @@ package com.bridgelabz.Main
 
 import org.bson.BsonType
 import org.mongodb.scala.Document
-
+import org.mongodb.scala.model.Projections._
+import org.mongodb.scala.model.Filters._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -35,9 +36,9 @@ object Database_service {
    */
   def checkIfExists(email : String): Boolean = {
     val data = Await.result(getUsers(),10.seconds)
-    data.foreach(d => d.foreach(obj =>
-      if(obj._2.getBsonType() == BsonType.STRING){
-        if(obj._2.asString().getValue().equals(email))
+    data.foreach(document => document.foreach(bsonObject =>
+      if(bsonObject._2.getBsonType() == BsonType.STRING){
+        if(bsonObject._2.asString().getValue().equals(email))
           return true
       }
     ))
@@ -46,6 +47,10 @@ object Database_service {
   // Returns All the users present inside database in the form of future
   def getUsers() = {
     MongoDatabase.collection.find().toFuture()
+  }
+
+  def getUsersUsingFilter(email : String) = {
+    MongoDatabase.collection.find(equal("email",email)).projection(excludeId()).toFuture()
   }
 
 }
