@@ -4,7 +4,11 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.LazyLogging
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
+import courier._
+import Defaults._
+import javax.mail.internet.InternetAddress
 
+import scala.util.{Failure, Success}
 class UserManagementRoutes(service: UserManagementService) extends PlayJsonSupport with LazyLogging {
   val routes: Route =
     pathPrefix("user") {
@@ -15,7 +19,7 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
           if (service.userLogin(loginRequest) == "Login Successful") {
             complete((StatusCodes.OK, "Successfully logged in!"))
           } else {
-            complete(StatusCodes.Unauthorized,"Cannot login")
+            complete(StatusCodes.Unauthorized,"Invalid credentials. User not found!")
           }
         }
       } ~
@@ -23,10 +27,21 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
         path("register") {
           (post & entity(as[Request])) { createUserRequest =>
             if (service.createUser(createUserRequest) == "User created") {
-              //val token: String = TokenAuthorization.generateToken(createUserRequest.email)
+              val token: String = TokenAuthorization.generateToken(createUserRequest.email)
+              val mailer = Mailer("smtp.gmail.com", 587)
+                .auth(true)
+                .as(sys.env("sender_email"),sys.env("sender_password"))
+                .startTls(true)()
+              mailer(Envelope.from(new InternetAddress(sys.env("sender_email")))
+                .to(new InternetAddress(createUserRequest.email))
+                .subject("Token")
+                .content(Text("Thanks for registering! Your token is: " + token))).onComplete {
+                case Success(_) => println("Message delivered. Email verified!")
+                case Failure(_) => println("Failed to verify user!")
+              }
               complete((StatusCodes.OK, "User Registered!"))
             } else {
-              complete(StatusCodes.BadRequest -> "Cannot Register")
+              complete(StatusCodes.BadRequest -> "Error! User already exists!")
             }
           }
         }
