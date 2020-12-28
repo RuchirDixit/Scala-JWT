@@ -7,7 +7,7 @@ import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import courier._
 import Defaults._
 import javax.mail.internet.InternetAddress
-
+import com.nimbusds.jose.JWSObject
 import scala.util.{Failure, Success}
 class UserManagementRoutes(service: UserManagementService) extends PlayJsonSupport with LazyLogging {
   val routes: Route =
@@ -23,6 +23,21 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
           }
         }
       } ~
+      // to verify whether user's email id exists or not. If user reaches this path that means his email id is authentic.
+      path("verify"){
+        get {
+          parameters('token.as[String],'email.as[String]) {
+            (token,email) =>
+              val jwsObject = JWSObject.parse(token)
+              if(jwsObject.getPayload.toJSONObject.get("email").equals(email)){
+                complete("User successfully verified and registered!")
+              }
+              else {
+                complete("User could not be verified!")
+              }
+          }
+        }
+      } ~
         // to register user using post request, returns success on successful registration or else returns Cannot registered
         path("register") {
           (post & entity(as[Request])) { createUserRequest =>
@@ -35,7 +50,9 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
               mailer(Envelope.from(new InternetAddress(sys.env("sender_email")))
                 .to(new InternetAddress(createUserRequest.email))
                 .subject("Token")
-                .content(Text("Thanks for registering! Your token is: " + token))).onComplete {
+                .content(Text("Thanks for registering! Click on this link to verify your email address: http://localhost:8081/user/verify?token="
+                  +token+"&email="+createUserRequest.email)))
+                .onComplete {
                 case Success(_) => println("Message delivered. Email verified!")
                 case Failure(_) => println("Failed to verify user!")
               }
