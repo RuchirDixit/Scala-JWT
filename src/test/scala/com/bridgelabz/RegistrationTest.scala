@@ -13,7 +13,7 @@ import scala.concurrent.Await
 class RegistrationTest extends AnyWordSpec with should.Matchers with ScalatestRouteTest {
 
   "A Router" should {
-    "login successfully" in {
+    "register successfully" in {
       val jsonRequest = ByteString(
         s"""
            |{
@@ -21,17 +21,24 @@ class RegistrationTest extends AnyWordSpec with should.Matchers with ScalatestRo
            |    "password":"demo"
            |}
               """.stripMargin)
-      val postRequest = HttpRequest(
-        HttpMethods.POST,
-        uri = "/user/register",
-        entity = HttpEntity(MediaTypes.`application/json`, jsonRequest))
-//      val users = Await.result(MongoDatabase.collection.find().toFuture(),120.seconds)
-//      users.foreach(doc => doc.foreach(value => println("Value::"+value)))
-//      val userManagementService = new UserManagementService
-//      postRequest ~>  Route.seal(new UserManagementRoutes(userManagementService).routes) ~> check {
-//        status.isSuccess() shouldEqual true
-//        //responseAs[String] shouldEqual "Successfully logged in!"
-//      }
+      Post("/user/register", HttpEntity(MediaTypes.`application/json`,jsonRequest)) ~> new UserManagementRoutes(new UserManagementService).routes ~> check
+      {
+        status shouldBe StatusCodes.OK
+      }
+    }
+    "login successfully" in {
+      val jsonRequest = ByteString(
+        s"""
+           |{
+           |    "email":"ruchirtd96@gmail.com",
+           |    "password":"demo",
+           |    "isVerified":false
+           |}
+              """.stripMargin)
+      Post("/user/login", HttpEntity(MediaTypes.`application/json`,jsonRequest)) ~> new UserManagementRoutes(new UserManagementService).routes ~> check
+      {
+        status shouldBe StatusCodes.UnavailableForLegalReasons
+      }
     }
   }
 }
