@@ -1,4 +1,5 @@
 package com.bridgelabz.Main
+// TODO : Use UpdateOne method to update isVerified key to true once user verified
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -8,17 +9,32 @@ import courier._
 import Defaults._
 import javax.mail.internet.InternetAddress
 import com.nimbusds.jose.JWSObject
+import org.mongodb.scala.model.Filters._
+import org.bson.{BsonDocument, BsonType}
+import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.bson.collection.mutable.Document
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model.Filters
+import org.mongodb.scala.model.Updates._
+
+import concurrent.duration._
+import scala.concurrent.Await
 import scala.util.{Failure, Success}
 class UserManagementRoutes(service: UserManagementService) extends PlayJsonSupport with LazyLogging {
   val routes: Route =
     pathPrefix("user") {
       // for login using post request, returns success on successful login or else returns unauthorized
       path("login") {
-        (post & entity(as[Request])) { loginRequest =>
+        (post & entity(as[User])) { loginRequest =>
           logger.info("Login response: " + service.userLogin(loginRequest))
+          println("Login res::::"+service.userLogin(loginRequest))
           if (service.userLogin(loginRequest) == "Login Successful") {
             complete((StatusCodes.OK, "Successfully logged in!"))
-          } else {
+          }
+          else if (service.userLogin(loginRequest) == "User Not verified") {
+            complete(StatusCodes.UnavailableForLegalReasons,"User's Email Id is not verified!")
+          }
+          else {
             complete(StatusCodes.Unauthorized,"Invalid credentials. User not found!")
           }
         }
@@ -26,9 +42,12 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
       // to verify whether user's email id exists or not. If user reaches this path that means his email id is authentic.
       path("verify"){
         get {
+
           parameters('token.as[String],'email.as[String]) {
             (token,email) =>
               val jwsObject = JWSObject.parse(token)
+              val updateUserAsVerified = MongoDatabase.collection.updateOne(equal("email",email),set("isVerified",true)).toFuture()
+              Await.result(updateUserAsVerified,60.seconds)
               if(jwsObject.getPayload.toJSONObject.get("email").equals(email)){
                 complete("User successfully verified and registered!")
               }
@@ -40,7 +59,7 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
       } ~
         // to register user using post request, returns success on successful registration or else returns Cannot registered
         path("register") {
-          (post & entity(as[Request])) { createUserRequest =>
+          (post & entity(as[User])) { createUserRequest =>
             if (service.createUser(createUserRequest) == "User created") {
               val token: String = TokenAuthorization.generateToken(createUserRequest.email)
               val mailer = Mailer("smtp.gmail.com", 587)
@@ -57,19 +76,14 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
                 case Failure(_) => println("Failed to verify user!")
               }
               complete((StatusCodes.OK, "User Registered!"))
-            } else {
+            }
+            else if (service.createUser(createUserRequest) == "User Validation Failed"){
+              complete(StatusCodes.BadRequest -> "Error! Please Enter proper email ID!")
+            }
+            else {
               complete(StatusCodes.BadRequest -> "Error! User already exists!")
             }
           }
         }
-    } ~
-      path("protectedcontent") {
-        get {
-          TokenAuthorization.authenticated { _ =>
-            val response = service.protectedContent
-            println(response)
-            complete(response)
-          }
-        }
-      }
+    }
 }
