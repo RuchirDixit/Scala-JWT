@@ -1,2 +1,8 @@
+*.class
+*.log
+.bsp/
 .idea/
+/null/
 /target/
+project/target/
+scalastyle-config.xml
