@@ -22,6 +22,7 @@ import org.mongodb.scala.Document
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Projections.excludeId
 import scala.concurrent.{Await, Future}
+import concurrent.duration._
 
 object Database_service extends LazyLogging{
 
