@@ -44,6 +44,7 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
         (post & entity(as[User])) { loginRequest =>
           logger.info("Login response: " + service.userLogin(loginRequest))
           if (service.userLogin(loginRequest) == "Login Successful") {
+            // $COVERAGE-OFF$
             complete((StatusCodes.OK, "Successfully logged in!"))
           }
           else if (service.userLogin(loginRequest) == "User Not verified") {
@@ -59,6 +60,7 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
          * @input : It accepts parameters token and name from the link
          * @return :  success on successful verification of user and error if verification failed
          */
+        // $COVERAGE-OFF$
       path("verify"){
         get {
           parameters('token.as[String],'email.as[String]) {
