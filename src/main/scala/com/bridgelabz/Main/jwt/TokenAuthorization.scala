@@ -28,6 +28,7 @@ object TokenAuthorization extends LazyLogging{
   private val header = JwtHeader("HS256")
   private val tokenExpiryPeriodInDays = 1
 
+  // $COVERAGE-OFF$
   /**
    * method to generate jwt token based on users email
    * @param email : using email field to generate token
@@ -49,6 +50,7 @@ object TokenAuthorization extends LazyLogging{
    *
    * @return : Map with value whether authenticated or not
    */
+  // $COVERAGE-OFF$
   def authenticated: Directive1[Map[String, Any]] = {
 
     optionalHeaderValueByName("Authorization").flatMap { tokenFromUser =>
@@ -71,6 +73,7 @@ object TokenAuthorization extends LazyLogging{
    * @param jwt : Jwt token
    * @return : whether jwt token is expired or not
    */
+  // $COVERAGE-OFF$
   private def isTokenExpired(jwt: String): Boolean =
     getClaims(jwt).get("expiredAt").exists(_.toLong < System.currentTimeMillis())
 
@@ -79,6 +82,7 @@ object TokenAuthorization extends LazyLogging{
    * @param jwt : Jwt token
    * @return : Map[String,String]
    */
+  // $COVERAGE-OFF$
   private def getClaims(jwt: String): Map[String, String] =
     JsonWebToken.unapply(jwt) match {
       case Some(value) => value._2.asSimpleMap.getOrElse(Map.empty[String, String])
