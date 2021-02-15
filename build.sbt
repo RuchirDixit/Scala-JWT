@@ -18,5 +18,6 @@ libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-actor" % "2.5.23",
   "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime,
   "com.github.daddykotex" %% "courier" % "3.0.0-M2",
   "com.nimbusds" % "nimbus-jose-jwt" % "9.3",
-  "org.scalatest" %% "scalatest" % "3.2.2" % Test
+  "org.scalatest" %% "scalatest" % "3.2.2" % Test,
+  "org.scalatestplus" %% "mockito-3-4" % "3.2.3.0" % "test"
 )
