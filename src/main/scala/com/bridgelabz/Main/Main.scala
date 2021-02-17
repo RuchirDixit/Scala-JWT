@@ -29,8 +29,9 @@ import scala.io.StdIn
 // $COVERAGE-OFF$
 object Main extends App with LazyLogging {
   val conf = ConfigFactory.load()
-  val host = sys.env("Host")
-    val port_number = sys.env("Port_number").toInt
+  val host = sys.env("HOST")
+  val port_number = sys.env("PORT").toInt
+  val nameOfActor = "AkkaJwtApp"
   implicit val actorSystem = ActorSystemFactory.system
   implicit val materializer: ActorMaterializer =
     ActorMaterializer()(actorSystem)
