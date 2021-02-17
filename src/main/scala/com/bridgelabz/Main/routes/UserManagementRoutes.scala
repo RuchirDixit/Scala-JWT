@@ -18,21 +18,25 @@ package com.bridgelabz.Main.routes
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import com.bridgelabz.Main.actorsystem.ActorSystemFactory
 import com.bridgelabz.Main.caseclasses.User
-import com.bridgelabz.Main.database.MongoDatabase
+import com.bridgelabz.Main.database.DatabaseConfig
 import com.bridgelabz.Main.services.UserManagementService
 import com.bridgelabz.Main.jwt.TokenAuthorization
 import com.nimbusds.jose.JWSObject
 import com.typesafe.scalalogging.LazyLogging
-import courier.Defaults._
 import courier._
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import javax.mail.internet.InternetAddress
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model.Updates._
 
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
-class UserManagementRoutes(service: UserManagementService) extends PlayJsonSupport with LazyLogging {
+
+class UserManagementRoutes(service: UserManagementService) extends PlayJsonSupport with LazyLogging with DatabaseConfig {
+    val system = ActorSystemFactory.system
+    implicit val executor: ExecutionContext = system.dispatcher
   val routes: Route =
     pathPrefix("user") {
       /**
@@ -66,7 +70,7 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
           parameters('token.as[String],'email.as[String]) {
             (token,email) =>
               val jwsObject = JWSObject.parse(token)
-              val updateUserAsVerified = MongoDatabase.collection.updateOne(equal("email",email),set("isVerified",true)).toFuture()
+              val updateUserAsVerified = collection.updateOne(equal("email",email),set("isVerified",true)).toFuture()
               if(jwsObject.getPayload.toJSONObject.get("email").equals(email)){
                 onComplete(updateUserAsVerified) {
                   case Success(_) =>
@@ -89,15 +93,15 @@ class UserManagementRoutes(service: UserManagementService) extends PlayJsonSuppo
           (post & entity(as[User])) { createUserRequest =>
             if (service.createUser(createUserRequest) == "User created") {
               val token: String = TokenAuthorization.generateToken(createUserRequest.email)
-              val mailer = Mailer("smtp.gmail.com", sys.env("smtp_port").toInt)
+              val mailer = Mailer("smtp.gmail.com", sys.env("SMTPPORT").toInt)
                 .auth(true)
-                .as(sys.env("sender_email"),sys.env("sender_password"))
+                .as(sys.env("SENDEREMAIL"),sys.env("PASSWORD"))
                 .startTls(true)()
-              mailer(Envelope.from(new InternetAddress(sys.env("sender_email")))
+              mailer(Envelope.from(new InternetAddress(sys.env("SENDEREMAIL")))
                 .to(new InternetAddress(createUserRequest.email))
                 .subject("Token")
                 .content(Text("Thanks for registering! Click on this link to verify your email address: http://" +
-                  sys.env("Host") + ":" + sys.env("Port_number") + "/user/verify?token="
+                  sys.env("HOST") + ":" + sys.env("PORT") + "/user/verify?token="
                   + token + "&email=" + createUserRequest.email)))
                 .onComplete {
                 case Success(_) => logger.info("Message delivered. Email verified!")
