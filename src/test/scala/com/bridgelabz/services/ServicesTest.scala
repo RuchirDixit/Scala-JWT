@@ -17,7 +17,7 @@ package com.bridgelabz.services
 
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.bridgelabz.Main.caseclasses.User
-import com.bridgelabz.Main.database.Database_service
+import com.bridgelabz.Main.database.DatabaseService
 import com.bridgelabz.Main.services.UserManagementService
 import org.scalatest.matchers.should
 import org.scalatest.wordspec.AnyWordSpec
@@ -29,7 +29,7 @@ class ServicesTest extends AnyWordSpec with should.Matchers with ScalatestRouteT
   "On Successful user added" should {
     "return Success" in {
       val data = User("demo@gmail.com","demo123",Some(false))
-      val status = Database_service.saveUser(data)
+      val status = DatabaseService.saveUser(data)
       if(status == "Failure") {
         assert(status == "Failure")
       }
@@ -39,7 +39,7 @@ class ServicesTest extends AnyWordSpec with should.Matchers with ScalatestRouteT
     }
     "return Validation Failed" in {
       val data = User("@gmail.com","1234",Some(false))
-      val status = Database_service.saveUser(data)
+      val status = DatabaseService.saveUser(data)
       assert(status == "Validation Failed")
     }
   }
