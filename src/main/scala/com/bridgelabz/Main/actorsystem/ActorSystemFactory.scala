@@ -16,7 +16,8 @@
 package com.bridgelabz.Main.actorsystem
 
 import akka.actor.ActorSystem
+import com.bridgelabz.Main.Main
 
 object ActorSystemFactory {
-  implicit val system = ActorSystem("Scala_jwt-App")
+  implicit val system = ActorSystem(Main.nameOfActor)
 }
