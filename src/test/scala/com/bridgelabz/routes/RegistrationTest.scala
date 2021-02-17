@@ -32,7 +32,7 @@ class RegistrationTest extends AnyWordSpec with should.Matchers with ScalatestRo
       val jsonRequest = ByteString(
         s"""
            |{
-           |    "email":"ruchirtd3001@gmail.com",
+           |    "email":"ruchirtd3004@gmail.com",
            |    "password":"demo",
            |    "isVerified":true
            |}
