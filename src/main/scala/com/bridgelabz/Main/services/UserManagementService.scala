@@ -16,7 +16,7 @@
 package com.bridgelabz.Main.services
 
 import com.bridgelabz.Main.caseclasses.User
-import com.bridgelabz.Main.database.Database_service
+import com.bridgelabz.Main.database.DatabaseService
 import com.typesafe.scalalogging.LazyLogging
 import org.bson.BsonType
 
@@ -29,7 +29,7 @@ class UserManagementService extends LazyLogging {
    * @return : If successful login return "Login Successful"
    */
   def userLogin(loginRequest: User): String = {
-    val users = Await.result(Database_service.getUsersUsingFilter(loginRequest.email),60.seconds)
+    val users = Await.result(DatabaseService.getUsersUsingFilter(loginRequest.email),60.seconds)
     users.foreach(document => document.foreach(bsonObject =>
         if(bsonObject._2.asString().getValue.equals(loginRequest.email)){
           logger.info("Inside if value (email):" + bsonObject._2.asString().getValue)
@@ -57,7 +57,7 @@ class UserManagementService extends LazyLogging {
    * @return : If successful login return "User created"
    */
   def createUser(createUserRequest: User):  String = {
-    val status = Database_service.saveUser(createUserRequest)
+    val status = DatabaseService.saveUser(createUserRequest)
     if (status.equals("Success")){
       "User created"
     }
